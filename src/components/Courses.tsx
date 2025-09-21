@@ -2,12 +2,13 @@ import React, { useState } from 'react';
 import Card from './Card';
 import Button from './Button';
 import CourseModal from './CourseModal';
+import type { Course } from '../types';
 
 const Courses: React.FC = () => {
-  const [selectedCourse, setSelectedCourse] = useState<any>(null);
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const courses = [
+  const courses: Course[] = [
     {
       id: 1,
       icon: 'bi-person-plus',
@@ -106,9 +107,14 @@ const Courses: React.FC = () => {
     }
   ];
 
-  const handleViewDetails = (course: any) => {
+  const handleViewDetails = (course: Course) => {
     setSelectedCourse(course);
     setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedCourse(null);
   };
 
   return (
@@ -125,8 +131,8 @@ const Courses: React.FC = () => {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {courses.map((course, index) => (
-              <Card key={index} className="text-left relative group hover:scale-105 transition-transform duration-300 cursor-pointer border-2 border-primary-100 hover:border-primary-300">
+            {courses.map((course) => (
+              <Card key={course.id} className="text-left relative group hover:scale-105 transition-transform duration-300 cursor-pointer border-2 border-primary-100 hover:border-primary-300">
                 <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
                   <i className={`${course.icon} text-white text-2xl`}></i>
                 </div>
@@ -144,7 +150,7 @@ const Courses: React.FC = () => {
                 </div>
                 
                 <div className="mb-6">
-                  <h4 className="font-semibold text-primary-900 mb-3">What's included:</h4>
+                  <h4 className="font-semibold text-primary-900 mb-3">What&apos;s included:</h4>
                   <ul className="text-sm text-gray-600 space-y-1">
                     {course.features.map((feature, featureIndex) => (
                       <li key={featureIndex} className="flex items-center">
@@ -172,7 +178,7 @@ const Courses: React.FC = () => {
         <CourseModal
           course={selectedCourse}
           isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
+          onClose={handleCloseModal}
         />
       )}
     </>

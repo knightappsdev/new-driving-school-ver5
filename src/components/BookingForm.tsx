@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import Button from './Button';
+import type { Course } from '../types';
 
 interface BookingFormProps {
   isOpen: boolean;
   onClose: () => void;
-  course: any;
+  course: Course;
   transmission: string;
 }
 
@@ -19,17 +20,21 @@ const BookingForm: React.FC<BookingFormProps> = ({ isOpen, onClose, course, tran
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const message = `New Booking Request:
+    try {
+      const message = `New Booking Request:
 Course: ${course.title}
 Transmission: ${transmission}
 Name: ${formData.fullName}
 Email: ${formData.email}
 Phone: ${formData.phone}
 Price: ${course.price}`;
-    
-    const whatsappUrl = `https://wa.me/447756183484?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-    onClose();
+      
+      const whatsappUrl = `https://wa.me/447756183484?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      onClose();
+    } catch (error) {
+      console.error('Error submitting booking:', error);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,6 +52,7 @@ Price: ${course.price}`;
           <button
             onClick={onClose}
             className="text-secondary-600 hover:text-primary-500 text-2xl"
+            aria-label="Close form"
           >
             <i className="bi bi-x"></i>
           </button>

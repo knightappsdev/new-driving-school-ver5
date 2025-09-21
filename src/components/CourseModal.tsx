@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import Button from './Button';
 import BookingForm from './BookingForm';
+import type { Course } from '../types';
 
 interface CourseModalProps {
-  course: any;
+  course: Course;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -15,16 +16,27 @@ const CourseModal: React.FC<CourseModalProps> = ({ course, isOpen, onClose }) =>
   if (!isOpen) return null;
 
   const handleBookNow = () => {
-    const message = `Hi, I'm interested in booking the ${course.title} course (${selectedTransmission} transmission). Price: ${course.price}. Please provide more details.`;
-    const whatsappUrl = `https://wa.me/447756183484?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
-    setShowBookingForm(true);
+    try {
+      const message = `Hi, I'm interested in booking the ${course.title} course (${selectedTransmission} transmission). Price: ${course.price}. Please provide more details.`;
+      const whatsappUrl = `https://wa.me/447756183484?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+      setShowBookingForm(true);
+    } catch (error) {
+      console.error('Error opening WhatsApp:', error);
+    }
   };
 
   const handleMaybeLater = () => {
     onClose();
-    // Trigger exit intent form (will be handled by ExitIntentModal component)
-    window.dispatchEvent(new Event('triggerExitIntent'));
+    try {
+      window.dispatchEvent(new Event('triggerExitIntent'));
+    } catch (error) {
+      console.error('Error triggering exit intent:', error);
+    }
+  };
+
+  const handleTransmissionChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedTransmission(e.target.value);
   };
 
   return (
@@ -36,6 +48,7 @@ const CourseModal: React.FC<CourseModalProps> = ({ course, isOpen, onClose }) =>
             <button
               onClick={onClose}
               className="text-secondary-600 hover:text-primary-500 text-2xl"
+              aria-label="Close modal"
             >
               <i className="bi bi-x"></i>
             </button>
@@ -43,7 +56,6 @@ const CourseModal: React.FC<CourseModalProps> = ({ course, isOpen, onClose }) =>
           
           <div className="p-6">
             <div className="grid md:grid-cols-2 gap-8">
-              {/* Left Column - Course Details */}
               <div>
                 <div className="mb-6">
                   <h3 className="text-xl font-semibold text-primary-900 mb-4">Live Course Stats</h3>
@@ -82,7 +94,7 @@ const CourseModal: React.FC<CourseModalProps> = ({ course, isOpen, onClose }) =>
                         name="transmission"
                         value="manual"
                         checked={selectedTransmission === 'manual'}
-                        onChange={(e) => setSelectedTransmission(e.target.value)}
+                        onChange={handleTransmissionChange}
                         className="mr-2"
                       />
                       <span className="text-secondary-700">Manual</span>
@@ -93,7 +105,7 @@ const CourseModal: React.FC<CourseModalProps> = ({ course, isOpen, onClose }) =>
                         name="transmission"
                         value="automatic"
                         checked={selectedTransmission === 'automatic'}
-                        onChange={(e) => setSelectedTransmission(e.target.value)}
+                        onChange={handleTransmissionChange}
                         className="mr-2"
                       />
                       <span className="text-secondary-700">Automatic</span>
@@ -102,12 +114,11 @@ const CourseModal: React.FC<CourseModalProps> = ({ course, isOpen, onClose }) =>
                 </div>
               </div>
 
-              {/* Right Column - What's Included & Why Choose */}
               <div>
                 <div className="mb-6">
-                  <h3 className="text-xl font-semibold text-primary-900 mb-4">What's Included</h3>
+                  <h3 className="text-xl font-semibold text-primary-900 mb-4">What&apos;s Included</h3>
                   <ul className="space-y-2">
-                    {course.fullFeatures.map((feature: string, index: number) => (
+                    {course.fullFeatures.map((feature, index) => (
                       <li key={index} className="flex items-center text-secondary-700">
                         <i className="bi bi-check-circle text-success-500 mr-3"></i>
                         {feature}
